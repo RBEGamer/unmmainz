@@ -1,111 +1,71 @@
-var express = require('express');
-var app = express();
+////////////////////
+// INIT GREENLOCK //
+////////////////////
+
 var path = require('path');
-var server = require('http').createServer(app);
-const httpsServer = https.createServer(credentials, app);
-var io = require('socket.io')(server);
-var express = require('express');
-var session = require('express-session');
-var bodyParser = require('body-parser');
-var sessionstore = require('sessionstore');
-var os = require("os");
-var chalk = require('chalk');
-var mqtt = require('mqtt');
-var config = require('./config.json');
-var uuidv1 = require('uuid/v1');
-var got = require('got');
-var mqtt = require('mqtt');
-//var client = mqtt.connect(config.mqtt_server || 'mqtt://127.0.0.1');
-var fs = require('fs');
+var os = require('os');
+var Greenlock = require('greenlock');
 
+var greenlock = Greenlock.create({
+    version: 'draft-12',
+    server: 'https://acme-v02.api.letsencrypt.org/directory',
 
+    // Use the approveDomains callback to set per-domain config
+    // (default: approve any domain that passes self-test of built-in challenges)
+    approveDomains: approveDomains,
 
+    // the default servername to use when the client doesn't specify
+    servername: 'example.com',
 
-const privateKey = fs.readFileSync('/etc/letsencrypt/live/yourdomain.com/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('/etc/letsencrypt/live/yourdomain.com/cert.pem', 'utf8');
-const ca = fs.readFileSync('/etc/letsencrypt/live/yourdomain.com/chain.pem', 'utf8');
-
-const credentials = {
-    key: privateKey,
-    cert: certificate,
-    ca: ca
-};
-
-
-var port = process.env.PORT || config.webserver_default_port || 3000;
-var port_sec = process.env.PORT_SEC || config.webserver_default_port_sec || 443;
-//----------------------------- EXPRESS APP SETUP ------------------------------------------//
-app.set('trust proxy', 1);
-app.use(function (req, res, next) {
-    if (!req.session) {
-        return next(); //handle error
-    }
-    next(); //otherwise continue
-});
-app.set('views', __dirname + '/views');
-app.engine('html', require('ejs').renderFile);
-// Routing
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({
-    secret: 'ssshhfddghjhgewretjrdhfsgdfadvsgvshthhh',
-    store: sessionstore.createSessionStore(),
-    resave: true,
-    saveUninitialized: true
-}));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
-
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
+    // If you wish to replace the default account and domain key storage plugin
+    store: require('le-store-fs').create({
+        configDir: path.join(os.homedir(), 'acme/etc'),
+        webrootPath: '/tmp/acme-challenges'
+    })
 });
 
-server.listen(port, function () {
-    console.log('Server listening at port %d', port);
+/////////////////////
+// APPROVE DOMAINS //
+/////////////////////
+
+var http01 = require('le-challenge-fs').create({
+    webrootPath: '/tmp/acme-challenges'
 });
+function approveDomains(opts, certs, cb) {
+    // This is where you check your database and associated
+    // email addresses with domains and agreements and such
 
-httpsServer.listen(port_sec, () => {
-    console.log('HTTPS Server running on port ', port_sec);
-});
+    // Opt-in to submit stats and get important updates
+    opts.communityMember = true;
 
-var pub = null;
+    // If you wish to replace the default challenge plugin, you may do so here
+    opts.challenges = { 'http-01': http01 };
 
+    // The domains being approved for the first time are listed in opts.domains
+    // Certs being renewed are listed in certs.altnames
+    // certs.domains;
+    // certs.altnames;
+    opts.email = 'john.doe@example.com';
+    opts.agreeTos = true;
 
+    // NOTE: you can also change other options such as `challengeType` and `challenge`
+    // opts.challengeType = 'http-01';
+    // opts.challenge = require('le-challenge-fs').create({});
 
+    cb(null, { options: opts, certs: certs });
+}
 
+////////////////////
+// CREATE SERVERS //
+////////////////////
 
-var last_update = Math.round(new Date().getTime() / 1000);
+var redir = require('redirect-https')();
+require('http')
+    .createServer(greenlock.middleware(redir))
+    .listen(80);
 
-
-app.get('/', function (req, res) {
-    sess = req.session;
-    res.render('./public/index.html', {
-    });
-});
-
-
-
-
-
-io.on('connection', (socket) => {
-    socket.on('disconnect', function () {
-        console.log('user disconnected');
-    });
-
-
-
-    socket.on('event', function (_msg) {
-        if (_msg.state == undefined){
-            _msg.state = -1;
-        }
-        console.log(JSON.stringify(_msg )+ ' event');
-        
-    });
-
-
-});
-
-
+require('https')
+    .createServer(greenlock.tlsOptions, function (req, res) {
+        res.end('Hello, Secure World!');
+    })
+    .listen(443);
