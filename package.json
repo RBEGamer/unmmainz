@@ -17,6 +17,7 @@
     "express": "^4.16.3",
     "express-session": "^1.15.6",
     "got": "^8.3.2",
+    "https": "^1.0.0",
     "mqtt": "^2.18.8",
     "nano": "^6.4.4",
     "randomstring": "^1.1.5",

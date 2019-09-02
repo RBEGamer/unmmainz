@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=0.8, shrink-to-fit=yes, user-scalable=no">
+  <meta charset="utf-8">
+  <title>Team GestiCam - RPPG Demo</title>
+
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/small-business.css" rel="stylesheet">
+
+
+
+  <style>
+    body {
+      background-color: rgb(44, 43, 43);
+    }
+
+    .my-sidebar {
+      -ms-flex: 0 0 800;
+      flex: 0 0 800;
+      background-color: greenyellow;
+    }
+
+    .gauge_text {
+      font-weight: 900;
+      color: aliceblue;
+      font-size: 1.6em;
+    }
+  </style>
+
+
+</head>
+
+<body>
+
+
+  <div class="container-fluid" style="max-width: 1280;">
+
+
+    <div class="row" style="">
+
+      <div class="col-md-12 col-md-offset-1 center-block text-center" style="color:white;">
+        <h1>GestiCam - RRPG Demo</h1>
+      </div>
+
+
+
+
+
+
+    </div>
+
+
+    <!-- Heading Row -->
+    <div class="row" style="border:2px solid white;">
+      <div class="col-md-6 col-md-offset-1" style="border:2px solid white;">
+        <canvas id="canvas" width="640" height="480">
+          Your browser does not support the canvas element.
+        </canvas>
+      </div>
+      <div class="col-md-6 col-md-offset-1" style="border:2px solid white;">
+
+<canvas id="canvas_img" width="640" height="480">
+  Your browser does not support the canvas element.
+</canvas>
+
+
+        IMG
+      </div>
+    </div>
+
+
+    <div class="row" style="border:2px solid white;">
+      <div class="col-md-6 col-md-offset-1 center-block text-center" style="border:2px solid white;">
+        <span class="gauge_text" id="gauge_kmh_text">Live RGB Image</span>
+      </div>
+      <div class="col-md-6 col-md-offset-1 center-block text-center" style="border:2px solid white;">
+        <span class="gauge_text" id="gauge_kn_text">Live Filtered Image</span>
+      </div>
+    </div>
+
+
+    
+    
+    <div class="row" style="border:2px solid white;">
+      <div class="col-md-6 col-md-offset-1 center-block text-center" style="border:2px solid white;">
+        <span class="gauge_text" id="gauge_kmh_text">Read Values</span>
+      </div>
+      <div class="col-md-6 col-md-offset-1 center-block text-center" style="border:2px solid white;">
+      
+
+
+        <table class="table table-dark">
+          <thead>
+            <tr>
+              <th scope="col">Key</th>
+              <th scope="col">Value</th>
+           
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">BPM</th>
+              <td id="tbpm"></td>
+            
+            </tr>
+            <tr>
+              <th scope="row">Face Detected</th>
+              <td id="tfd"></td>  
+            </tr>
+
+
+           
+           
+            
+
+          </tbody>
+        </table>
+
+
+
+
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!--<script src="opencv.js"></script>-->
+    <video hidden id="webcam" width="640" height="480"></video>
+
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="js/204socket.io.js"></script>
+
+
+    <script src="./opencv.js"></script>
+    <script type="module" src="./index_local.js"></script>
+
+    <script>
+
+
+
+    </script>
+
+
+</body>
